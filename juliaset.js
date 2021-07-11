@@ -81,8 +81,8 @@ let JuliaSet = {
 			// An extra row of pixels must be added to block numbers less than the remainder of
 			// the total Y pixel size divided by block Y pixel size:
 			let currentBlockPySize = blockPySize;
-			if (i < (py % blockPySize)) {
-				currentBlockPySize++;
+			if (i < (pySize % blockPySize)) {
+				currentBlockPySize += 1;
 			}
 			msg.pySize = currentBlockPySize;
 			
