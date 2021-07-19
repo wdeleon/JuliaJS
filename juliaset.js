@@ -44,7 +44,7 @@ let JuliaSet = {
 		
 		JuliaSet.settings.a = Controls.inputs.toNumber.call(DOM.a);
 		JuliaSet.settings.b = Controls.inputs.toNumber.call(DOM.b);
-		JuliaSet.settings.mandelbrot = true;
+		JuliaSet.settings.mandelbrot = false;
 		
 		JuliaSet.settings.pxSize = Controls.inputs.toNumber.call(DOM.pX, flags.INT | flags.ABS);
 		JuliaSet.settings.pySize = Controls.inputs.toNumber.call(DOM.pY, flags.INT | flags.ABS);
