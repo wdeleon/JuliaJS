@@ -19,11 +19,37 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+body {
+	background-color: #777;
+}
+
 #main {
 	position: absolute;
 	top: 0;
 	left: 0;
 	z-index: 1;
+}
+
+#selectionBox {
+	visibility: hidden;
+	position: absolute;
+	display: block;
+	top: 0;
+	left: 0;
+	border: 1px blue solid;
+	background-color: #fff;
+	opacity: 0.5;
+}
+
+#selectionOverlay {
+	visibility: visible;
+	position: absolute;
+	display: block;
+	top: 0;
+	left: 0;
+	background-color: #fff;
+	opacity: 0.0;
+	z-index: 3;
 }
 
 #launchBanner {
@@ -38,7 +64,7 @@
 }
 
 #controls {
-	z-index: 3;
+	z-index: 100;
 }
 
 .description {
