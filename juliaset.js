@@ -34,30 +34,61 @@ let JuliaSet = {
 		mandelbrot: false,
 	},
 	
+	settings: {
+		previousCommit: false,
+	},
+	
+	// Save the settings the most recent image was rendered with
+	commitSettings: function () {
+		JuliaSet.settings.previousCommit = true;
+		
+		JuliaSet.settings.a = Controls.inputs.toNumber.call(DOM.a);
+		JuliaSet.settings.b = Controls.inputs.toNumber.call(DOM.b);
+		JuliaSet.settings.mandelbrot = true;
+		
+		JuliaSet.settings.pxSize = Controls.inputs.toNumber.call(DOM.pX, flags.INT | flags.ABS);
+		JuliaSet.settings.pySize = Controls.inputs.toNumber.call(DOM.pY, flags.INT | flags.ABS);
+		
+		JuliaSet.settings.xSize = Controls.inputs.toNumber.call(DOM.cxWidth, flags.ABS);
+		JuliaSet.settings.xCenter = Controls.inputs.toNumber.call(DOM.cxCenter);
+		JuliaSet.settings.xMin = JuliaSet.settings.xCenter - (JuliaSet.settings.xSize / 2);
+		
+		JuliaSet.settings.ySize = JuliaSet.settings.xSize / (JuliaSet.settings.pxSize / JuliaSet.settings.pySize);
+		JuliaSet.settings.yCenter = Controls.inputs.toNumber.call(DOM.cyCenter);
+		JuliaSet.settings.yMax = JuliaSet.settings.yCenter + (JuliaSet.settings.ySize / 2);
+		
+		JuliaSet.settings.stepSize = JuliaSet.settings.xSize / JuliaSet.settings.pxSize;
+	},
+	
+	// Restore the control form fields back to the settings the most recent image was rendered with
+	loadSettingsToControls: function () {
+		
+	},
+	
 	render: function (threads = window.navigator.hardwareConcurrency) {
+		JuliaSet.commitSettings();
+		
 		// Perturbation parameters:
-		let a = Controls.inputs.toNumber.call(DOM.a);
-		let b = Controls.inputs.toNumber.call(DOM.b);
+		let a = JuliaSet.settings.a;
+		let b = JuliaSet.settings.b;
 		
 		// Mandelbrot or Julia set:
-		let mandelbrot = false;
+		let mandelbrot = JuliaSet.settings.mandelbrot;
 		
 		// Pixel X and Y dimensions:
-		let pxSize = Controls.inputs.toNumber.call(DOM.pX, flags.INT, flags.ABS);
-		let pySize = Controls.inputs.toNumber.call(DOM.pY, flags.INT, flags.ABS);
+		let pxSize = JuliaSet.settings.pxSize;
+		let pySize = JuliaSet.settings.pySize;
 		let blockPySize = Math.floor(pySize / threads);
 		
 		// Cartesian X and Y framing:
-		let xSize = Controls.inputs.toNumber.call(DOM.cxWidth, flags.FLOAT, flags.ABS);
-		let xCenter = Controls.inputs.toNumber.call(DOM.cxCenter);
-		let xMin = xCenter - (xSize / 2);
+		let xSize = JuliaSet.settings.xSize;
+		let xMin = JuliaSet.settings.xMin;
 		
-		let ySize = xSize / (pxSize / pySize);
-		let yCenter = Controls.inputs.toNumber.call(DOM.cyCenter);
-		let yMax = yCenter + (ySize / 2);
+		let ySize = JuliaSet.settings.ySize;
+		let yMax = JuliaSet.settings.yMax;
 		
 		// Cartestian coordinate step size of each pixel:
-		let stepSize = xSize / pxSize;
+		let stepSize = JuliaSet.settings.stepSize;
 
 		MainCanvas.resize();
 		

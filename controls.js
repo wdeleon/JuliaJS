@@ -22,10 +22,7 @@
 "use strict";
 
 const flags = {
-	FLOAT: 0b1,
-	INT: 0b10,
-	
-	SIGNED: 0b1,
+	INT: 0b01,
 	ABS: 0b10,
 };
 
@@ -122,9 +119,9 @@ var Controls = {
 				}
 				
 				// Set input field values:
-				let ax = Controls.inputs.toNumber.call(DOM.aspectX, flags.FLOAT, flags.ABS);
-				let ay = Controls.inputs.toNumber.call(DOM.aspectY, flags.FLOAT, flags.ABS);
-				let px = Controls.inputs.toNumber.call(DOM.pX, flags.INT, flags.ABS);
+				let ax = Controls.inputs.toNumber.call(DOM.aspectX, flags.ABS);
+				let ay = Controls.inputs.toNumber.call(DOM.aspectY, flags.ABS);
+				let px = Controls.inputs.toNumber.call(DOM.pX, flags.INT | flags.ABS);
 				
 				// Calculate new pixel-Y size value:
 				// Doesn't use setValue() so that things like 'Infinity' don't get set as the last good value
@@ -135,18 +132,19 @@ var Controls = {
 		resButton: {
 			click: function (evt, ax, ay, px) {
 				evt.preventDefault();
-				Controls.inputs.setValue.call(DOM.aspectX, ax, flags.FLOAT, flags.ABS);
-				Controls.inputs.setValue.call(DOM.aspectY, ay, flags.FLOAT, flags.ABS);
-				Controls.inputs.setValue.call(DOM.pX, px, flags.INT, flags.ABS);
-				Controls.buttons.autoPy.click();
+				Controls.inputs.setValue.call(DOM.aspectX, ax, flags.ABS);
+				Controls.inputs.setValue.call(DOM.aspectY, ay, flags.ABS);
+				Controls.inputs.setValue.call(DOM.pX, px, flags.INT | flags.ABS);
+				//Controls.buttons.autoPy.click();
+				DOM.autoPyButton.click();
 			},
 		},
 		
 		aspectButton: {
 			click: function (evt, ax, ay) {
 				evt.preventDefault();
-				Controls.inputs.setValue.call(DOM.aspectX, ax, flags.FLOAT, flags.ABS);
-				Controls.inputs.setValue.call(DOM.aspectY, ay, flags.FLOAT, flags.ABS);
+				Controls.inputs.setValue.call(DOM.aspectX, ax, flags.ABS);
+				Controls.inputs.setValue.call(DOM.aspectY, ay, flags.ABS);
 				Controls.buttons.autoPy.click();
 			},
 		},
@@ -165,29 +163,29 @@ var Controls = {
 		initialize: function () {
 			// Set all input fields to default values
 			Controls.inputs.setValue.call(DOM.cxCenter, JuliaSet.defaults.xCenter);
-			Controls.inputs.setValue.call(DOM.cxWidth, JuliaSet.defaults.xWidth, flags.FLOAT, flags.ABS);
+			Controls.inputs.setValue.call(DOM.cxWidth, JuliaSet.defaults.xWidth, flags.ABS);
 			Controls.inputs.setValue.call(DOM.cyCenter, JuliaSet.defaults.yCenter);
 			Controls.inputs.setValue.call(DOM.a, JuliaSet.defaults.a);
 			Controls.inputs.setValue.call(DOM.b, JuliaSet.defaults.b);
 			
-			Controls.inputs.setValue.call(DOM.aspectX, 1, flags.FLOAT, flags.ABS);
-			Controls.inputs.setValue.call(DOM.aspectY, 1, flags.FLOAT, flags.ABS);
-			Controls.inputs.setValue.call(DOM.pX, MainCanvas.xSize, flags.INT, flags.ABS);
+			Controls.inputs.setValue.call(DOM.aspectX, 1, flags.ABS);
+			Controls.inputs.setValue.call(DOM.aspectY, 1, flags.ABS);
+			Controls.inputs.setValue.call(DOM.pX, MainCanvas.xSize, flags.INT | flags.ABS);
 			Controls.buttons.autoPy.click();
 		},
 		
-		toNumber: function (type = flags.FLOAT, signed = flags.SIGNED) {
+		toNumber: function (type = 0b00) {
 			let n = Number.parseFloat(this.value);
 			
 			// Valid number:
 			if (Number.isFinite(n)) {
-				if (signed & flags.ABS) {
+				if (type & flags.ABS) {
 					n = Math.abs(n);
 				}
 				if (type & flags.INT) {
 					n = Math.round(n);
 				}
-				Controls.inputs.setValue.call(this, n, type, signed);
+				Controls.inputs.setValue.call(this, n, type);
 			}
 			
 			// Not a valid number, roll back to last valid value:
@@ -199,7 +197,7 @@ var Controls = {
 			return n;
 		},
 		
-		setValue: function (n, type = flags.FLOAT, signed = flags.SIGNED) {
+		setValue: function (n, type = 0b00) {
 			// NOTICE: monkey-patching a property onto an object in the DOM (or any object you don't own) is
 			// usually bad practice. I'm doing it anyway in this instance for convenience and expediency.
 			this.lastValue = n;
