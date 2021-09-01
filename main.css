@@ -53,6 +53,7 @@ body {
 }
 
 #launchBanner {
+	position: fixed;
 	font-style: italic;
 	background-color: #ffffee;
 	color: #886;
@@ -61,10 +62,6 @@ body {
 	top: 10px;
 	transform: translateX(-50%);
 	z-index: 2;
-}
-
-#controls {
-	z-index: 100;
 }
 
 .description {
@@ -89,8 +86,12 @@ body {
 	text-align: right;
 }
 
-.control-box {
+.control-container {
 	position: fixed;
+	z-index: 100;
+}
+
+.control-box {
 	font-size: 16pt;
 	display: inline-block;
 	font-family: sans-serif;
