@@ -24,13 +24,15 @@
 function start () {
 	DOM.initialize();
 	Controls.initialize();
+	RenderHistory.initialize();
 	Keys.initialize();
 	MainCanvas.initialize();
 	
 	// Hide the opening banner message after a few seconds:
 	setTimeout(Banner.hide, 4100);
 	
-	JuliaSet.render();
+	// Render the opening image:
+	DOM.renderButton.click();
 }
 
 window.addEventListener('load', start);

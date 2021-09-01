@@ -42,31 +42,63 @@ let JuliaSet = {
 	commitSettings: function () {
 		JuliaSet.settings.previousCommit = true;
 		
+		// Settings directly from form fields:
 		JuliaSet.settings.a = Controls.inputs.toNumber.call(DOM.a);
 		JuliaSet.settings.b = Controls.inputs.toNumber.call(DOM.b);
-		JuliaSet.settings.mandelbrot = false;
-		
 		JuliaSet.settings.pxSize = Controls.inputs.toNumber.call(DOM.pX, flags.INT | flags.ABS);
 		JuliaSet.settings.pySize = Controls.inputs.toNumber.call(DOM.pY, flags.INT | flags.ABS);
-		
 		JuliaSet.settings.xSize = Controls.inputs.toNumber.call(DOM.cxWidth, flags.ABS);
 		JuliaSet.settings.xCenter = Controls.inputs.toNumber.call(DOM.cxCenter);
-		JuliaSet.settings.xMin = JuliaSet.settings.xCenter - (JuliaSet.settings.xSize / 2);
-		
-		JuliaSet.settings.ySize = JuliaSet.settings.xSize / (JuliaSet.settings.pxSize / JuliaSet.settings.pySize);
 		JuliaSet.settings.yCenter = Controls.inputs.toNumber.call(DOM.cyCenter);
-		JuliaSet.settings.yMax = JuliaSet.settings.yCenter + (JuliaSet.settings.ySize / 2);
+		JuliaSet.settings.aspectX = Controls.inputs.toNumber.call(DOM.aspectX, flags.ABS);
+		JuliaSet.settings.aspectY = Controls.inputs.toNumber.call(DOM.aspectY, flags.ABS);
 		
+		// Mandelbrot set selector radio buttons:
+		if (DOM.mandelbrotRadio.checked == true) {
+			JuliaSet.settings.mandelbrot = true;
+		}
+		else {
+			JuliaSet.settings.mandelbrot = false;
+		}
+		
+		// Derived values:
+		JuliaSet.settings.xMin = JuliaSet.settings.xCenter - (JuliaSet.settings.xSize / 2);
+		JuliaSet.settings.ySize = JuliaSet.settings.xSize / (JuliaSet.settings.pxSize / JuliaSet.settings.pySize);
+		JuliaSet.settings.yMax = JuliaSet.settings.yCenter + (JuliaSet.settings.ySize / 2);
 		JuliaSet.settings.stepSize = JuliaSet.settings.xSize / JuliaSet.settings.pxSize;
+		
+		RenderHistory.add();
 	},
 	
-	// Restore the control form fields back to the settings the most recent image was rendered with
-	loadSettingsToControls: function () {
+	// Restore the control form fields back to the settings contained in the passed object
+	loadSettings: function (settings) {
+		// Restore rendering settings object:
+		JuliaSet.settings = settings;
 		
+		// Restore imput form settings:
+		DOM.a.value = JuliaSet.settings.a;
+		DOM.b.value = JuliaSet.settings.b;
+		DOM.pX.value = JuliaSet.settings.pxSize;
+		DOM.pY.value = JuliaSet.settings.pySize;
+		DOM.cxWidth.value = JuliaSet.settings.xSize;
+		DOM.cxCenter.value = JuliaSet.settings.xCenter;
+		DOM.cyCenter.value = JuliaSet.settings.yCenter;
+		DOM.aspectX.value = JuliaSet.settings.aspectX;
+		DOM.aspectY.value = JuliaSet.settings.aspectY;
+		
+		// Handle Mandelbrot set selector radio buttons:
+		if (JuliaSet.settings.mandelbrot) {
+			DOM.mandelbrotRadio.checked = true;
+			DOM.juliaRadio.checked = false;
+		}
+		else {
+			DOM.juliaRadio.checked = true;
+			DOM.mandelbrotRadio.checked = false;
+		}
 	},
 	
 	render: function (threads = window.navigator.hardwareConcurrency) {
-		JuliaSet.commitSettings();
+		//JuliaSet.commitSettings();
 		
 		// Perturbation parameters:
 		let a = JuliaSet.settings.a;
@@ -160,6 +192,7 @@ let JuliaSet = {
 			let sx = 0;
 			let sy = 0;
 			
+			// Allocate memory for an array of unsigned 8-bit integer values with four values (R,G,B,A) per pixel
 			msg.imgData = new Uint8ClampedArray(pxSize * pySize * 4);
 			
 			// Initial offsets of individual color positions in data array
@@ -211,7 +244,7 @@ let JuliaSet = {
 					// Move X point position one pixel-sized step right:
 					cx += stepSize;
 					
-					// Advance color data offsets
+					// Advance color data offsets to the next pixel
 					rPos += 4;
 					gPos += 4;
 					bPos += 4;

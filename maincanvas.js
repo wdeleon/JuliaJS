@@ -1,6 +1,6 @@
 /*
 	maincanvas.js - HTML5 canvas functionality container
-	 
+
 	---------------------------------------------------------------------
 	
 	This file is part of the JuliaJS project.
@@ -35,18 +35,31 @@ var SelectionOverlay = {
 		SelectionOverlay.startX = evt.offsetX;
 		SelectionOverlay.startY = evt.offsetY;
 		
+		SelectionOverlay.leftX = evt.offsetX;
+		SelectionOverlay.rightX = evt.offsetX;
+		SelectionOverlay.upperY = evt.offsetY;
+		SelectionOverlay.lowerY = evt.offsetY;
+		
 		DOM.selectionBox.style.visibility = 'visible';
 		DOM.selectionBox.style.left = evt.offsetX + 'px';
 		DOM.selectionBox.style.top = evt.offsetY + 'px';
+		DOM.selectionBox.style.width = '0px';
+		DOM.selectionBox.style.height = '0px';
 		
 		DOM.selectionOverlay.addEventListener('mousemove', SelectionOverlay.move);
 		DOM.selectionOverlay.addEventListener('mouseup', SelectionOverlay.stop);
 	},
 	
 	move: function (evt) {
-		let rect = DOM.selectionOverlay.getBoundingClientRect();
-		DOM.selectionBox.style.width = evt.clientX - (SelectionOverlay.startX + rect.left) + 'px';
-		DOM.selectionBox.style.height = evt.clientY - (SelectionOverlay.startY + rect.top) + 'px';
+		SelectionOverlay.leftX = Math.min(SelectionOverlay.startX, evt.offsetX);
+		SelectionOverlay.rightX = Math.max(SelectionOverlay.startX, evt.offsetX);
+		SelectionOverlay.upperY = Math.min(SelectionOverlay.startY, evt.offsetY);
+		SelectionOverlay.lowerY = Math.max(SelectionOverlay.startY, evt.offsetY);
+		
+		DOM.selectionBox.style.left = SelectionOverlay.leftX + 'px';
+		DOM.selectionBox.style.top = SelectionOverlay.upperY + 'px';
+		DOM.selectionBox.style.width = (SelectionOverlay.rightX - SelectionOverlay.leftX) + 'px';
+		DOM.selectionBox.style.height = (SelectionOverlay.lowerY - SelectionOverlay.upperY) + 'px';
 	},
 	
 	stop: function (evt) {
@@ -63,7 +76,7 @@ var SelectionOverlay = {
 		//   X width
 		// All other parameters: reload from the last committed rendering settings (TODO)
 		
-		if (SelectionOverlay.startX != SelectionOverlay.stopX && JuliaSet.settings.previousCommit) {
+		if ((SelectionOverlay.startX != SelectionOverlay.stopX) && JuliaSet.settings.previousCommit) {
 			let px1 = SelectionOverlay.startX;
 			let px2 = SelectionOverlay.stopX;
 			let py1 = SelectionOverlay.startY;

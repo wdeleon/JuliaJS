@@ -43,10 +43,10 @@ var Controls = {
 	
 	updateVisibility: function () {
 		if (Controls.currentlyVisible) {
-			DOM.controls.style.visibility = "visible";
+			DOM.control_container.style.visibility = "visible";
 		}
 		else {
-			DOM.controls.style.visibility = "hidden";
+			DOM.control_container.style.visibility = "hidden";
 		}
 	},
 	
@@ -88,8 +88,15 @@ var Controls = {
 			DOM.aspect169Button.addEventListener('click', (evt) => {Controls.buttons.aspectButton.click(evt, 16, 9);});
 
 			// C-value buttons:
+			DOM.c0Button.addEventListener('click', (evt) => {Controls.buttons.cButton.click(evt, -1.4, 0);});
 			DOM.c1Button.addEventListener('click', (evt) => {Controls.buttons.cButton.click(evt, 0.377, 0.28);});
 			DOM.c2Button.addEventListener('click', (evt) => {Controls.buttons.cButton.click(evt, -0.79, 0.15);});
+			DOM.c3Button.addEventListener('click', (evt) => {Controls.buttons.cButton.click(evt, 0.28, -0.01);});
+			
+			DOM.c4Button.addEventListener('click', (evt) => {Controls.buttons.cButton.click(evt, -0.162, 1.035);});
+			DOM.c5Button.addEventListener('click', (evt) => {Controls.buttons.cButton.click(evt, -0.7269, 0.1889);});
+			DOM.c6Button.addEventListener('click', (evt) => {Controls.buttons.cButton.click(evt, 0.45, 0.1428);});
+			DOM.c7Button.addEventListener('click', (evt) => {Controls.buttons.cButton.click(evt, 0, -0.8);});
 		},
 		
 		render: {
@@ -99,6 +106,7 @@ var Controls = {
 				
 				// Hide controls and start rendering when this button is clicked:
 				Controls.events.hide();
+				JuliaSet.commitSettings();
 				JuliaSet.render();
 			},
 		},
@@ -112,12 +120,11 @@ var Controls = {
 		
 		autoPy: {
 			click: function (evt) {
-				// This function is called by things other than events, so preventDefault() isn't always
-				// needed, but if there is an event object passed, preventDefault() needs to be called:
-				if (evt != undefined && typeof evt.preventDefault == "function") {
-					evt.preventDefault();
-				}
-				
+				evt.preventDefault();
+				Controls.buttons.autoPy.process();
+			},
+			
+			process: function () {
 				// Set input field values:
 				let ax = Controls.inputs.toNumber.call(DOM.aspectX, flags.ABS);
 				let ay = Controls.inputs.toNumber.call(DOM.aspectY, flags.ABS);
@@ -135,8 +142,7 @@ var Controls = {
 				Controls.inputs.setValue.call(DOM.aspectX, ax, flags.ABS);
 				Controls.inputs.setValue.call(DOM.aspectY, ay, flags.ABS);
 				Controls.inputs.setValue.call(DOM.pX, px, flags.INT | flags.ABS);
-				//Controls.buttons.autoPy.click();
-				DOM.autoPyButton.click();
+				Controls.buttons.autoPy.process();
 			},
 		},
 		
@@ -145,7 +151,7 @@ var Controls = {
 				evt.preventDefault();
 				Controls.inputs.setValue.call(DOM.aspectX, ax, flags.ABS);
 				Controls.inputs.setValue.call(DOM.aspectY, ay, flags.ABS);
-				Controls.buttons.autoPy.click();
+				Controls.buttons.autoPy.process();
 			},
 		},
 		
@@ -154,7 +160,7 @@ var Controls = {
 				evt.preventDefault();
 				Controls.inputs.setValue.call(DOM.a, a);
 				Controls.inputs.setValue.call(DOM.b, b);
-				Controls.buttons.autoPy.click();
+				Controls.buttons.autoPy.process();
 			},
 		},
 	},
@@ -162,6 +168,9 @@ var Controls = {
 	inputs: {
 		initialize: function () {
 			// Set all input fields to default values
+			DOM.juliaRadio.checked = true;
+			DOM.mandelbrotRadio.checked == false;
+			
 			Controls.inputs.setValue.call(DOM.cxCenter, JuliaSet.defaults.xCenter);
 			Controls.inputs.setValue.call(DOM.cxWidth, JuliaSet.defaults.xWidth, flags.ABS);
 			Controls.inputs.setValue.call(DOM.cyCenter, JuliaSet.defaults.yCenter);
@@ -171,7 +180,7 @@ var Controls = {
 			Controls.inputs.setValue.call(DOM.aspectX, 1, flags.ABS);
 			Controls.inputs.setValue.call(DOM.aspectY, 1, flags.ABS);
 			Controls.inputs.setValue.call(DOM.pX, MainCanvas.xSize, flags.INT | flags.ABS);
-			Controls.buttons.autoPy.click();
+			Controls.buttons.autoPy.process();
 		},
 		
 		toNumber: function (type = 0b00) {
@@ -190,7 +199,7 @@ var Controls = {
 			
 			// Not a valid number, roll back to last valid value:
 			else {
-				n = this.lastValue;
+				n = this.lastValue;	//Monkey-patched property that DOM objects don't usually have
 				this.value = n;
 			}
 			
@@ -198,9 +207,11 @@ var Controls = {
 		},
 		
 		setValue: function (n, type = 0b00) {
-			// NOTICE: monkey-patching a property onto an object in the DOM (or any object you don't own) is
+			// NOTICE: because setValue is invoked with a reference to a DOM object as its context, 'this' will be a DOM object.
+			// Monkey-patching a property onto an object in the DOM (or generally any object you don't own) is
 			// usually bad practice. I'm doing it anyway in this instance for convenience and expediency.
-			this.lastValue = n;
+			
+			this.lastValue = n;	//Monkey-patched property that DOM objects don't usually have
 			this.value = n;
 		},
 	},
@@ -226,10 +237,9 @@ var Keys = {
 			return;
 		}
 		
-		let keycode = evt.key;
-		
 		// Only try to execute keycode indices that are actually bound to functions, otherwise this causes errors
-		if (typeof Keys.bindings[keycode] == "function") {			
+		let keycode = evt.key;
+		if (typeof Keys.bindings[keycode] == "function") {
 			Keys.bindings[keycode]();
 		}
 	},
