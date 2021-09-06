@@ -22,28 +22,30 @@
 "use strict";
 
 class WorkerPool {
+	pool = new Array();
+	nextWorkerID = 0;
+	msgQueue = new Array();
+	msgFIFO = true;
+	maxWorkers = window.navigator.hardwareConcurrency;
+	minWorkers = 0;
+	activeWorkers = 0;
+	
 	constructor (worker_fn, callback_fn, options = {}) {
 		this.workerFn = URL.createObjectURL(new Blob(["("+worker_fn.toString()+")()"], {type: 'text/javascript'}));
 		this.callbackFn = callback_fn;
-		this.pool = new Array();
-		this.nextWorkerID = 0;
-		this.msgQueue = new Array();
 		
 		// By default, queued messages get processed FIFO (first in, first out)
 		// Setting this to false uses LIFO (last in, first out) instead
-		this.msgFIFO = true;
 		if (options.msgFIFO != undefined) {
 			this.msgFIFO = options.msgFIFO;
 		}
 		
 		// By default, the maximum number of worker threads is the number of available hardware threads
-		this.maxWorkers = window.navigator.hardwareConcurrency;
 		if (isFinite(options.max_workers) && options.max_workers > 0) {
 			this.maxWorkers = options.max_workers;
 		}
 		
 		// Minimum number of workers to create. Zero by default.
-		this.minWorkers = 0;
 		if (isFinite(options.min_workers) && options.min_workers > 0) {
 			this.minWorkers = options.min_workers;
 			this.createWorker(this.minWorkers);
@@ -80,6 +82,7 @@ class WorkerPool {
 		// Free worker found: mark this worker as busy and post the work message to it
 		if (available >= 0) {			
 			this.pool[available].isBusy = true;
+			this.activeWorkers++;
 			this.pool[available].worker.postMessage(msg);
 		}
 		
@@ -100,6 +103,7 @@ class WorkerPool {
 	returnProduct (slot, msg) {
 		// Mark this worker as free and run the callback function
 		this.pool[slot].isBusy = false;
+		this.activeWorkers--;
 		this.callbackFn(msg);
 		
 		// If there are queued work messages, pull one off the queue and dispatch it
@@ -113,5 +117,15 @@ class WorkerPool {
 			}
 			this.dispatchWorkUnit(nextMsg);
 		}
+	}
+	
+	// Return true if any worker is still processing
+	get working () {
+		return (this.activeWorkers > 0) ? true : false;
+	}
+	
+	// Return true if all workers are idle
+	get idle () {
+		return !(this.working);
 	}
 }
