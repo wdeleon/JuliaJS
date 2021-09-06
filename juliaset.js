@@ -32,6 +32,10 @@ let JuliaSet = {
 		a: 0.377,		// -0.79,
 		b: 0.28,		// 0.15,
 		mandelbrot: false,
+		
+		red: 255,
+		green: 128,
+		blue: 0,
 	},
 	
 	settings: {
@@ -52,6 +56,11 @@ let JuliaSet = {
 		JuliaSet.settings.yCenter = Controls.inputs.toNumber.call(DOM.cyCenter);
 		JuliaSet.settings.aspectX = Controls.inputs.toNumber.call(DOM.aspectX, flags.ABS);
 		JuliaSet.settings.aspectY = Controls.inputs.toNumber.call(DOM.aspectY, flags.ABS);
+		
+		// Color selection:
+		JuliaSet.settings.red = Colors.red;
+		JuliaSet.settings.green = Colors.green;
+		JuliaSet.settings.blue = Colors.blue;
 		
 		// Mandelbrot set selector radio buttons:
 		if (DOM.mandelbrotRadio.checked == true) {
@@ -86,6 +95,9 @@ let JuliaSet = {
 		DOM.aspectX.value = JuliaSet.settings.aspectX;
 		DOM.aspectY.value = JuliaSet.settings.aspectY;
 		
+		// Restore color:
+		Colors.changeTo(JuliaSet.settings.red, JuliaSet.settings.green, JuliaSet.settings.blue);
+		
 		// Handle Mandelbrot set selector radio buttons:
 		if (JuliaSet.settings.mandelbrot) {
 			DOM.mandelbrotRadio.checked = true;
@@ -97,8 +109,16 @@ let JuliaSet = {
 		}
 	},
 	
+	workPool: false,
+	
+	initialize: function () {
+		JuliaSet.workPool = new WorkerPool(JuliaSet.workerFunction, MainCanvas.paint);
+	},
+	
 	render: function (threads = window.navigator.hardwareConcurrency) {
-		//JuliaSet.commitSettings();
+		// Disable history buttons to prevent strange artifacting resulting from buttons being pushed before current render is complete:
+		RenderHistory.disableButtons();
+		DOM.saveButton.disabled = true;
 		
 		// Perturbation parameters:
 		let a = JuliaSet.settings.a;
@@ -121,6 +141,11 @@ let JuliaSet = {
 		
 		// Cartestian coordinate step size of each pixel:
 		let stepSize = JuliaSet.settings.stepSize;
+		
+		// Colors:
+		let red = JuliaSet.settings.red;
+		let green = JuliaSet.settings.green;
+		let blue = JuliaSet.settings.blue;
 
 		MainCanvas.resize();
 		
@@ -128,7 +153,6 @@ let JuliaSet = {
 		let y = yMax;
 		let py = 0;
 		
-		let juliaWorkPool = new WorkerPool(JuliaSet.workerFunction, MainCanvas.paint);
 		for (let i = 0; i < threads; i++) {
 			let msg = {};
 			msg.a = a;
@@ -140,6 +164,9 @@ let JuliaSet = {
 			msg.py = py;
 			msg.iterationLimit = 1000;
 			msg.mandelbrot = mandelbrot;
+			msg.red = red;
+			msg.green = green;
+			msg.blue = blue;
 			
 			// An extra row of pixels must be added to block numbers less than the remainder of
 			// the total Y pixel size divided by block Y pixel size:
@@ -155,7 +182,7 @@ let JuliaSet = {
 			// Pixel Y value of the next block down:
 			py += currentBlockPySize;
 			
-			juliaWorkPool.dispatchWorkUnit(msg);
+			JuliaSet.workPool.dispatchWorkUnit(msg);
 		}
 	},
 	
@@ -174,6 +201,7 @@ let JuliaSet = {
 			 *   mandelbrot: set to TRUE to render the Mandelbrot set instead of a Julia set
 			 *   stepSize: the cartesian distance to move between each point
 			 *   tx, ty, sx, sy: temporary X and Y cartesian coordinate variables
+			 *   red, green, blue: RGB values for pixel color determination
 			 ***/
 			 
 			let msg = e.data;
@@ -191,6 +219,9 @@ let JuliaSet = {
 			let ty = 0;
 			let sx = 0;
 			let sy = 0;
+			let red = msg.red;
+			let green = msg.green;
+			let blue = msg.blue;
 			
 			// Allocate memory for an array of unsigned 8-bit integer values with four values (R,G,B,A) per pixel
 			msg.imgData = new Uint8ClampedArray(pxSize * pySize * 4);
@@ -234,11 +265,9 @@ let JuliaSet = {
 					}
 					
 					// Copy pixel color data to image data array
-					// Hard-coded for a monochrome orange image for now
-					// A future improvement would be to add color variables so that this is user-controllable
-					msg.imgData[rPos] = color;
-					msg.imgData[gPos] = color / 2;
-					msg.imgData[bPos] = 0; //color;
+					msg.imgData[rPos] = red * (color / 255);	//color;
+					msg.imgData[gPos] = green * (color / 255);	//color / 2;
+					msg.imgData[bPos] = blue * (color / 255);	//0;
 					msg.imgData[aPos] = 255;
 					
 					// Move X point position one pixel-sized step right:

@@ -24,9 +24,11 @@
 function start () {
 	DOM.initialize();
 	Controls.initialize();
+	Colors.initialize();
 	RenderHistory.initialize();
 	Keys.initialize();
 	MainCanvas.initialize();
+	JuliaSet.initialize();
 	
 	// Hide the opening banner message after a few seconds:
 	setTimeout(Banner.hide, 4100);

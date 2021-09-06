@@ -74,7 +74,6 @@ var SelectionOverlay = {
 		//   X center
 		//   Y center
 		//   X width
-		// All other parameters: reload from the last committed rendering settings (TODO)
 		
 		if ((SelectionOverlay.startX != SelectionOverlay.stopX) && JuliaSet.settings.previousCommit) {
 			let px1 = SelectionOverlay.startX;
@@ -133,6 +132,12 @@ var MainCanvas = {
 	paint: function (block) {
 		let imgData = new ImageData(block.data.imgData, block.data.pxSize);
 		DOM.mainCanvasCtx.putImageData(imgData, 0, block.data.py);
+		
+		if (JuliaSet.workPool.idle) {
+			//console.log("rendering complete");
+			RenderHistory.updateButtons();
+			DOM.saveButton.disabled = false;
+		}
 	},
 	
 	clear: function () {

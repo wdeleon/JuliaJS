@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<!--
-			JuliaJS.html - HTML page for JuliaJS
+			index.html - HTML page for JuliaJS
 			
 			---------------------------------------------------------------------
 			
@@ -22,6 +22,7 @@
 			along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		-->
 		<meta charset="UTF-8" />
+		<title>JuliaJS - multi-threaded Julia set generator in your web browser</title>
 		<link href="main.css" rel="stylesheet" />
 		<script type="text/JavaScript" src="workerpool.js"></script>
 		<script type="text/JavaScript" src="juliaset.js"></script>
@@ -37,6 +38,7 @@
 		</section>
 		
 		<section id="control_container" class="control-container">
+			<!-- Main controls box -->
 			<section id="controls" class="control-box">
 				<strong>Rendering Parameters</strong>
 				<hr />
@@ -90,7 +92,10 @@
 						<button id="autoPyButton">Auto Y</button><br />
 						<div class="centered">
 							<button id="res640Button">640 x 480</button>
-							<button id="resHdButton">HD</button>
+							<button id="res800Button">800 x 600</button>
+							<button id="res1024Button">1024 x 768</button>
+							<button id="res720HdButton">720 HD</button>
+							<button id="resHdButton">1080 HD</button>
 							<button id="res2kButton">2K</button>
 							<button id="res4kButton">4K</button>
 							<button id="res8kButton">8K</button>
@@ -101,10 +106,61 @@
 				</form>
 			</section>
 			
-			<section id="history" class="control-box">
-				<strong>History</strong>
-				<hr />
-				<div class="centered"><button id="backButton">← Back</button> <button id="forwardButton">Forward →</button></div>
+			<section class="control-box-container">
+				<!-- Color controls box -->
+				<section id="color" class="control-box">
+					<strong>Color:</strong><span class="color-preview" id="colorPreview">&nbsp;</span>
+					<hr />
+					<center>
+						<span class="quick-color" id="whiteQuickClick">&nbsp;</span>
+						<span class="quick-color" id="redQuickClick">&nbsp;</span>
+						<span class="quick-color" id="orangeQuickClick">&nbsp;</span>
+						<span class="quick-color" id="yellowQuickClick">&nbsp;</span>
+						<span class="quick-color" id="greenQuickClick">&nbsp;</span>
+						<span class="quick-color" id="cyanQuickClick">&nbsp;</span>
+						<span class="quick-color" id="blueQuickClick">&nbsp;</span>
+						<span class="quick-color" id="purpleQuickClick">&nbsp;</span>
+						<span class="quick-color" id="fuchsiaQuickClick">&nbsp;</span>
+					</center>
+					<hr />
+					
+					<!-- RGB controls -->
+					<label for="redSlider" class="color-slider-label">R</label><input type="range" min="0" max="255" step="1" value="255" class="slider" id="redSlider" />
+					<input type="text" class="rgb_text" id="red" pattern="[0-9]+" />
+					<br />
+					<label for="greenSlider" class="color-slider-label">G</label><input type="range" min="0" max="255" step="1" value="128" class="slider" id="greenSlider" />
+					<input type="text" class="rgb_text" id="green" pattern="[0-9]+" />
+					<br />
+					<label for="blueSlider" class="color-slider-label">B</label><input type="range" min="0" max="255" step="1" value="0" class="slider" id="blueSlider" />
+					<input type="text" class="rgb_text" id="blue" pattern="[0-9]+" />
+					<br />
+					<hr />
+					
+					<!-- HSL controls -->
+					<label for="hueSlider" class="color-slider-label">H</label><input type="range" min="0" max="359" value="0" class="slider" id="hueSlider" />
+					<input type="text" class="rgb_text" id="hue" pattern="[0-9]+" />
+					<br />
+					<label for="saturationSlider" class="color-slider-label">S</label><input type="range" min="0" max="100" value="0" class="slider" id="saturationSlider" />
+					<input type="text" class="rgb_text" id="saturation" pattern="[0-9]+" />
+					<br />
+					<label for="luminositySlider" class="color-slider-label">L</label><input type="range" min="0" max="100" value="0" class="slider" id="luminositySlider" />
+					<input type="text" class="rgb_text" id="luminosity" pattern="[0-9]+" />
+					<br />
+				</section>
+				<br />
+				
+				<!-- History controls box -->
+				<section id="history" class="control-box">
+					<strong>History</strong>
+					<hr />
+					<div class="centered"><button id="backButton">← Back</button> <button id="forwardButton">Forward →</button></div>
+				</section>
+				
+				<section id="save" class="control-box">
+					<strong>Save Image</strong>
+					<hr />
+					<div class="centered"><button id="saveButton">Save</button></div>
+				</section>
 			</section>
 		</section>
 		
