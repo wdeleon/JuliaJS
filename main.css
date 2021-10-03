@@ -115,7 +115,7 @@ body {
 	animation-timing-function: ease-in;
 	animation-duration: 4s;
 }
-c
+
 @keyframes fadeOutOpacity {
 	0% {opacity: 1;}
 	50% {opacity: 1;}

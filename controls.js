@@ -559,10 +559,12 @@ var RenderHistory = {
 };
 
 var Keys = {
+	// TODO: change this to be a map instead of an object
 	bindings: {},
 	
 	initialize: function () {
 		// Associative array-like object binding keycode values to what function they should call:
+		// TODO: change this to use a map
 		Keys.bindings['Escape'] = Controls.events.toggleVisibility;
 		Keys.bindings['C'] = Controls.events.toggleVisibility;
 		Keys.bindings['c'] = Controls.events.toggleVisibility;
@@ -579,6 +581,7 @@ var Keys = {
 		}
 		
 		// Only try to execute keycode indices that are actually bound to functions, otherwise this causes errors
+		// TODO: change this to use a map by testing if the keycode for the event exists as a map key
 		let keycode = evt.key;
 		if (typeof Keys.bindings[keycode] == "function") {
 			Keys.bindings[keycode]();
