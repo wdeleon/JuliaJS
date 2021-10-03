@@ -133,8 +133,8 @@ var MainCanvas = {
 		let imgData = new ImageData(block.data.imgData, block.data.pxSize);
 		DOM.mainCanvasCtx.putImageData(imgData, 0, block.data.py);
 		
-		if (JuliaSet.workPool.idle) {
-			//console.log("rendering complete");
+		// Don't enable history navigation or image saving until rendering is complete
+		if (JuliaSet.workPool.isIdle) {
 			RenderHistory.updateButtons();
 			DOM.saveButton.disabled = false;
 		}

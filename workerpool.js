@@ -23,7 +23,6 @@
 
 class WorkerPool {
 	pool = new Array();
-	nextWorkerID = 0;
 	msgQueue = new Array();
 	msgFIFO = true;
 	maxWorkers = window.navigator.hardwareConcurrency;
@@ -69,9 +68,8 @@ class WorkerPool {
 	}
 	
 	dispatchWorkUnit (msg) {
+		// Search for the first worker not marked as busy, if any
 		let available = -1;
-		
-		// Search for the first worker not marked as busy
 		for (let i = 0; i < this.pool.length; i++) {
 			if (this.pool[i].isBusy == false) {
 				available = i;
@@ -120,12 +118,12 @@ class WorkerPool {
 	}
 	
 	// Return true if any worker is still processing
-	get working () {
+	get isWorking () {
 		return (this.activeWorkers > 0) ? true : false;
 	}
 	
 	// Return true if all workers are idle
-	get idle () {
-		return !(this.working);
+	get isIdle () {
+		return !(this.isWorking);
 	}
 }
